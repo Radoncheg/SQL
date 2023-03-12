@@ -7,7 +7,6 @@ use App\Common\Database\Synchronization;
 use App\Model\Course;
 use App\Model\CourseMaterial;
 use App\Model\Data\CourseStatusData;
-use App\Model\Data\GetCourseStatusParams;
 use App\Model\Data\SaveCourseParams;
 use App\Database\CourseQueryService;
 use App\Model\Data\SaveEnrollmentParams;
@@ -33,9 +32,9 @@ class CourseService
         );
     }
 
-    public function saveCourse(SaveCourseParams $params): string
+    public function saveCourse(SaveCourseParams $params): void
     {
-        return $this->synchronization->doWithTransaction(function () use ($params) {
+        $this->synchronization->doWithTransaction(function () use ($params) {
             $courseId = $params->getCourseId();
             $moduleIds = $params->getModuleIds();
             $requiredModuleIds = $params->getRequiredModuleIds();
@@ -47,6 +46,7 @@ class CourseService
                 new \DateTimeImmutable(),
                 new \DateTimeImmutable()
             );
+            $this->courseQueryService->saveCourse($course);
             foreach ($moduleIds as $moduleId)
             {
                 $isRequired = 0;
@@ -63,7 +63,6 @@ class CourseService
                 );
                 $this->courseQueryService->saveModule($module, $courseId);
             }
-            return $this->courseQueryService->saveCourse($course);
         });
     }
 

@@ -14,7 +14,7 @@ class CourseQueryService
    public function __construct(private Connection $connection)
     {}
 
-    public function saveCourse(Course $course): int
+    public function saveCourse(Course $course): void
     {
         $query = <<<SQL
             INSERT INTO course
@@ -30,11 +30,9 @@ class CourseQueryService
         ];
 
         $this->connection->execute($query, $params);
-
-        return $this->connection->getLastInsertId();
     }
 
-    public function saveModule(CourseMaterial $module, string $courseId): string
+    public function saveModule(CourseMaterial $module, string $courseId): void
     {
         $query = <<<SQL
             INSERT INTO course_material
@@ -51,8 +49,6 @@ class CourseQueryService
         ];
 
         $this->connection->execute($query, $params);
-
-        return $this->connection->getLastInsertId();
     }
 
     public function saveEnrollment(string $enrollmentId, string $courseId): string

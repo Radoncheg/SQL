@@ -46,9 +46,9 @@ class CourseApiController
             return $this->badRequest($response, $exception->getFieldErrors());
         }
 
-        $courseId = ServiceProvider::getInstance()->getCourseService()->saveCourse($params);
+        ServiceProvider::getInstance()->getCourseService()->saveCourse($params);
 
-        return $this->success($response, ['courseId' => $courseId]);
+        return $this->success($response, []);
     }
 
     public function saveCourseEnrollment(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
