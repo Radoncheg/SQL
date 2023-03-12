@@ -7,7 +7,7 @@ class CourseMaterial
 {
     public function __construct(
         private string $moduleId,
-        private bool $isRequired,
+        private int $isRequired,
         private \DateTimeImmutable $createdAt,
         private ?\DateTimeImmutable $updatedAt,
         private ?\DateTimeImmutable $deletedAt,
@@ -26,7 +26,7 @@ class CourseMaterial
         return $this->moduleId;
     }
 
-    public function getIsRequired(): bool
+    public function getIsRequired(): int
     {
         return $this->isRequired;
     }

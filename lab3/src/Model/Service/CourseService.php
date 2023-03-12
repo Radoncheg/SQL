@@ -49,10 +49,10 @@ class CourseService
             );
             foreach ($moduleIds as $moduleId)
             {
-                $isRequired = false;
+                $isRequired = 0;
                 if (in_array($moduleId, $requiredModuleIds))
                 {
-                    $isRequired = true;
+                    $isRequired = 1;
                 }
                 $module = new CourseMaterial(
                     $moduleId,

@@ -11,7 +11,7 @@ final class ConnectionProvider
         if ($connection === null)
         {
             // TODO: Добавить поддержку .env, чтобы упростить запуск примера в Windows
-            $dsn = 'mysql:dbname=wiki_backend;host=127.0.0.1';
+            $dsn = 'mysql:dbname=lms_backend;host=127.0.0.1';
             $user = 'root';
             $password = '';
             $connection = new Connection($dsn, $user, $password);

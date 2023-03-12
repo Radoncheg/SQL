@@ -9,7 +9,7 @@ services:
     environment:
       # Параметры приложения
       - APP_ENV=dev
-      - APP_DATABASE_DSN=mysql:dbname=wiki_backend;host=wiki-backend-db
+      - APP_DATABASE_DSN=mysql:dbname=lms_backend;host=wiki-backend-db
       - APP_DATABASE_USER=wiki-backend-app
       - APP_DATABASE_PASSWORD=kUUTyU7LssSc
       # Параметры скрипта docker-entrypoint
@@ -47,12 +47,12 @@ services:
       - MYSQL_ROOT_PASSWORD=VIzP6LTScyYy
       - MYSQL_USER=wiki-backend-app
       - MYSQL_PASSWORD=kUUTyU7LssSc
-      - MYSQL_DATABASE=wiki_backend
+      - MYSQL_DATABASE=lms_backend
     volumes:
       - $PWD/docker/config/mysql.conf.d:/etc/mysql/conf.d/:ro
-      - wiki_backend_db_data:/var/lib/mysql
+      - lms_backend_db_data:/var/lib/mysql
     ports:
       - "127.0.0.1:3306:3306"
 
 volumes:
-  wiki_backend_db_data:
+  lms_backend_db_data:
