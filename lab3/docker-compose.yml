@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  wiki-backend-app:
+    container_name: wiki-backend-app
+    build: $PWD/docker/image
+    command:
+      - /var/www/docker/docker-entrypoint
+    environment:
+      # Параметры приложения
+      - APP_ENV=dev
+      - APP_DATABASE_DSN=mysql:dbname=wiki_backend;host=wiki-backend-db
+      - APP_DATABASE_USER=wiki-backend-app
+      - APP_DATABASE_PASSWORD=kUUTyU7LssSc
+      # Параметры скрипта docker-entrypoint
+      - USER_ID=${USER_ID:-1000}
+      - USER_NAME=$USER
+      # Параметры расширения XDebug
+      - XDEBUG_MODE=debug
+      - XDEBUG_CONFIG="idekey=123"
+      - PHP_IDE_CONFIG=serverName=localhost
+    working_dir: /var/www
+    volumes:
+      - $PWD/:/var/www
+    depends_on:
+      - wiki-backend-db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  wiki-backend-nginx:
+    image: nginx:1.17
+    container_name: wiki-backend-nginx
+    working_dir: /var/www
+    volumes:
+      - $PWD/:/var/www
+      - $PWD/docker/config/nginx.conf.d/:/etc/nginx/conf.d/:ro
+    depends_on:
+      - wiki-backend-app
+    ports:
+      - "127.0.0.1:80:80"
+
+  wiki-backend-db:
+    image: mysql:8.0.32
+    container_name: wiki-backend-db
+    hostname: wiki-backend-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=VIzP6LTScyYy
+      - MYSQL_USER=wiki-backend-app
+      - MYSQL_PASSWORD=kUUTyU7LssSc
+      - MYSQL_DATABASE=wiki_backend
+    volumes:
+      - $PWD/docker/config/mysql.conf.d:/etc/mysql/conf.d/:ro
+      - wiki_backend_db_data:/var/lib/mysql
+    ports:
+      - "127.0.0.1:3306:3306"
+
+volumes:
+  wiki_backend_db_data:

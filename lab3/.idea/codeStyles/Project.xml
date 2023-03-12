@@ -1,0 +1,41 @@
+<component name="ProjectCodeStyleConfiguration">
+  <code_scheme name="Project" version="173">
+    <SqlCodeStyleSettings version="6">
+      <option name="SUBQUERY_OPENING" value="1" />
+      <option name="SUBQUERY_CONTENT" value="2" />
+      <option name="SUBQUERY_CLOSING" value="1" />
+      <option name="SELECT_EL_LINE" value="101" />
+      <option name="SELECT_USE_AS_WORD" value="1" />
+      <option name="SELECT_ALIGN_AS" value="false" />
+      <option name="FROM_EL_LINE" value="1" />
+      <option name="FROM_EL_COMMA" value="2" />
+      <option name="FROM_ONLY_JOIN_INDENT" value="1" />
+      <option name="WHERE_EL_LINE" value="101" />
+      <option name="WHERE_EL_BOUND" value="2" />
+      <option name="ORDER_EL_LINE" value="101" />
+      <option name="ORDER_EL_COMMA" value="2" />
+      <option name="TABLE_TYPES_ALIGN" value="false" />
+      <option name="TABLE_DEFAULTS_ALIGN" value="false" />
+      <option name="TABLE_NULLABILITIES_ALIGN" value="false" />
+      <option name="TABLE_ALTER_INSTRUCTION_ALIGN" value="false" />
+      <option name="TABLE_ALTER_ITEM_ALIGN" value="false" />
+      <option name="POST_OPT_ALIGN" value="false" />
+    </SqlCodeStyleSettings>
+    <codeStyleSettings language="PHP">
+      <option name="BRACE_STYLE" value="2" />
+      <option name="ELSE_ON_NEW_LINE" value="true" />
+      <option name="WHILE_ON_NEW_LINE" value="true" />
+      <option name="CATCH_ON_NEW_LINE" value="true" />
+      <option name="FINALLY_ON_NEW_LINE" value="true" />
+      <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
+      <option name="ALIGN_MULTILINE_FOR" value="false" />
+      <option name="IF_BRACE_FORCE" value="3" />
+    </codeStyleSettings>
+    <codeStyleSettings language="SQL">
+      <indentOptions>
+        <option name="INDENT_SIZE" value="2" />
+        <option name="CONTINUATION_INDENT_SIZE" value="2" />
+      </indentOptions>
+    </codeStyleSettings>
+  </code_scheme>
+</component>

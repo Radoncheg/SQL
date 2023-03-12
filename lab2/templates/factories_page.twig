@@ -1,0 +1,110 @@
+{% block stylesheets %}
+    <link href="{{ 'css/ui-table.css' }}" type="text/css" rel="stylesheet"/>
+{% endblock %}
+
+{% block javascript %}
+<script defer src={{ 'js/script.js' }}></script>
+{% endblock %}
+
+{% block content %}
+    <form id="filter_form" class="ui-table-form">
+        <fieldset class='form-row'>
+            <label for="filter_by_status">Статус:</label>
+            <select id="filter_by_status" name="filter_by_status">
+                <option value="">Все</option>
+                {% for value, name in form.status_options %}
+                    {% if value == form.values.filter_by_status %}
+                        <option value="{{ value }}" selected>{{ name }}</option>
+                    {% else %}
+                        <option value="{{ value }}">{{ name }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </fieldset>
+        <fieldset class='form-row'>
+            <label for="filter_by_depth">Глубина переработки:</label>
+            <select id="filter_by_depth" name="filter_by_depth">
+                <option value="">Все</option>
+                {% for name in form.depth_options %}
+                    {% if name == form.values.filter_by_depth %}
+                        <option value="{{ name }}" selected>{{ name }}</option>
+                    {% else %}
+                        <option value="{{ name }}">{{ name }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </fieldset>
+        <fieldset class='form-row'>
+            <label for="filter_by_product">Продукция:</label>
+            <select id="filter_by_product" name="filter_by_product">
+                <option value="">Все</option>
+                {% for name in form.product_options %}
+                    {% if name == form.values.filter_by_product %}
+                        <option value="{{ name }}" selected>{{ name }}</option>
+                    {% else %}
+                        <option value="{{ name }}">{{ name }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </fieldset>
+        <fieldset class='form-row'>
+            <label for="search_query">Поиск:</label>
+            <input id="search_query" name="search_query" type="text" placeholder="введите текст..." value="{{ form.values.search_query }}"/>
+        </fieldset>
+        <div class='form-row'>
+            <button>Применить</button>
+            <button id="reset" type="reset">Очистить фильтр</button>
+        </div>
+        <table class="ui-table">
+            <tr>
+                <th id="f.full_name" style = "color: blue">Полное наименование&nbsp;{{ sort_field == 'f.full_name' ? (sort_type ? '&#8593;' : '&#8595;') : ''}}</th>
+                <th id="f.short_name" style = "color: blue">Сокращенное наименование&nbsp;{{ sort_field == 'f.short_name' ? (sort_type ? '&#8593;' : '&#8595;') : ''}}</th>
+                <th>Юридический адрес</th>
+                <th>Фактический адрес</th>
+                <th id="f.processing_depth" style = "color: blue">Глубина переработки&nbsp;{{ sort_field == 'f.processing_depth' ? (sort_type ? '&#8593;' : '&#8595;') : ''}}</th>
+                <th>Основание и дата внесения в реестр</th>
+                <th id="s.status_text" style = "color: blue">Статус НПЗ&nbsp;{{ sort_field == 's.status_text' ? (sort_type ? '&#8593;' : '&#8595;') : ''}}</u></th>
+                <th>Продукция</th>
+            </tr>
+            {% for row in table_rows %}
+                <tr>
+                    <td>{{ row.full_name }}</td>
+                    <td>{{ row.short_name }}</td>
+                    <td>{{ row.legal_address }}</td>
+                    <td>{{ row.actual_address }}</td>
+                    <td>{{ row.processing_depth }}</td>
+                    <td>{{ row.register_info }}</td>
+                    <td>{{ row.status_text }}</td>
+                    <td>{{ row.products }}</td>
+                </tr>
+            {% endfor %}
+            {% if page_count > 1 %}
+                <ul id="pagination" class="pagination">
+                    {% for i in 1..page_count %}
+                        {% if 0 == (page_no - 4) - loop.index %}
+                            <li id=1 class="page-item">1</li>
+                            {% if 1 != loop.index %}
+                                <li class="page-item">
+                                    ...
+                                </li>
+                            {% endif %}
+                        {% elseif 0 == (page_no + 4) - loop.index  and (page_no + 4) < page_count %}
+                            <li class="page-item">
+                                ...
+                            </li>
+                        {% elseif 0 < (page_no - 4) - loop.index %}
+                        {% elseif 0 > (page_no + 4) - loop.index %}
+                        {% else %}
+                            <li id="{{ loop.index }}" class="page-item{{ page_no == loop.index ? ' active' }}">
+                                {{ loop.index }}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_no != page_count  and (page_no + 4) < page_count %}
+                        <li class="page-item" id="{{ page_count }}">{{ page_count }}</li>
+                    {% endif %}
+                </ul>
+            {% endif %}
+        </table>
+    </form>
+{% endblock %}
