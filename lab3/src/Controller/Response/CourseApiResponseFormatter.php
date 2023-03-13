@@ -33,10 +33,7 @@ class CourseApiResponseFormatter
         $result = [];
         foreach ($moduleStatusData as $data)
         {
-            $result[] =  [
-                'module_id' => key($data),
-                'progress' => $data[key($data)]
-                ];
+            $result[] =  $data;
         }
         return $result;
     }

@@ -5,9 +5,11 @@ namespace App\Database;
 
 use App\Common\Database\Connection;
 use App\Common\Database\DatabaseDateFormat;
+use App\Controller\Request\RequestValidationException;
 use App\Model\Course;
 use App\Model\CourseMaterial;
 use App\Model\Data\CourseStatusData;
+use App\Model\Data\ModuleStatusData;
 
 class CourseQueryService
 {
@@ -101,12 +103,12 @@ class CourseQueryService
         $query = <<<SQL
             SELECT
               cs.enrollment_id,
-              JSON_ARRAYAGG(JSON_OBJECT(cms.module_id, cms.progress)) AS modules,
+              JSON_ARRAYAGG(JSON_OBJECT('moduleId', cms.module_id, 'progress', cms.progress)) AS modules,
               cs.progress,
               cs.duration
             FROM course_status cs
             LEFT JOIN course_module_status cms ON cs.enrollment_id = cms.enrollment_id
-            WHERE cs.enrollment_id = :enrollmentId
+            WHERE cs.enrollment_id = :enrollmentId AND cms.deleted_at IS NULL
             GROUP BY cms.module_id
             SQL;
         $params = [
@@ -115,7 +117,14 @@ class CourseQueryService
 
         $stmt = $this->connection->execute($query, $params);
 
-        return $this->hydrateCourseStatusData($stmt->fetchAll(\PDO::FETCH_ASSOC)[0]);
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (empty($result))
+        {
+            throw new RequestValidationException([$name => 'All modules are deleted']);
+        }
+
+        return $this->hydrateCourseStatusData($result);
     }
 
     public function deleteCourse(string $courseId): void
@@ -168,11 +177,16 @@ class CourseQueryService
 
     private function hydrateCourseStatusData(array $row): CourseStatusData
     {
+        $modules = [];
+        foreach ($row as $data)
+        {
+            $modules[] = json_decode($data['modules'], false, 512, 0);
+        }
         try
         {
             return new CourseStatusData(
                 (string)$row['enrollment_id'],
-                json_decode($row['modules'], true, 512, JSON_THROW_ON_ERROR),
+                $modules,
                 (int)$row['progress'],
                 (int)$row['duration']
             );
