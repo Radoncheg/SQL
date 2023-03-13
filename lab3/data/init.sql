@@ -16,7 +16,6 @@ CREATE TABLE course_material
   is_required BOOLEAN,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  deleted_at DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (module_id),
   FOREIGN KEY fk_course_id_key (course_id)
     REFERENCES course (course_id)
@@ -50,6 +49,7 @@ CREATE TABLE course_module_status
   module_id VARCHAR(36),
   progress DECIMAL(3, 0),
   duration INT,
+  deleted_at DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (enrollment_id, module_id),
   FOREIGN KEY course_enrollment_id_fk (enrollment_id)
     REFERENCES course_enrollment (enrollment_id)

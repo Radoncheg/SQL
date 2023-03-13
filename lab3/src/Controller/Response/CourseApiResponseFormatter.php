@@ -18,7 +18,7 @@ class CourseApiResponseFormatter
         $moduleStatusData = $courseStatusData->getModules();
         if (!empty($moduleStatusData))
         {
-            $result['modules'] = self::formatModuleStatusData($courseStatusData->getModules());
+            $result['modules'] = self::formatModuleStatusData($moduleStatusData);
         }
         return $result;
     }

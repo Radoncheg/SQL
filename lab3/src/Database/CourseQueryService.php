@@ -29,7 +29,7 @@ class CourseQueryService
             ':updatedAt' => $this->formatDateTimeOrNull($course->getUpdatedAt()),
         ];
 
-        $this->connection->execute($query, $params);
+            $this->connection->execute($query, $params);
     }
 
     public function saveModule(CourseMaterial $module, string $courseId): void
@@ -65,6 +65,7 @@ class CourseQueryService
         ];
 
         $this->connection->execute($query, $params);
+        $this->saveCourseStatus($enrollmentId);
     }
 
     public function saveMaterialStatus(
@@ -92,26 +93,29 @@ class CourseQueryService
 
 
     /**
+     * @param string $enrollmentId
      * @return CourseStatusData
      */
     public function getCourseStatusData(string $enrollmentId): CourseStatusData
     {
         $query = <<<SQL
             SELECT
-              cms.enrollment_id,
-              JSON_ARRAYAGG(cms.module_id) AS modules,
-              cms.progress,
-              cms.duration
-            FROM course_module_status cms
-            WHERE enrollment_id = {$enrollmentId}
-            GROUP BY cms.enrollment_id
+              cs.enrollment_id,
+              JSON_ARRAYAGG(JSON_OBJECT(cms.module_id, cms.progress)) AS modules,
+              cs.progress,
+              cs.duration
+            FROM course_status cs
+            LEFT JOIN course_module_status cms ON cs.enrollment_id = cms.enrollment_id
+            WHERE cs.enrollment_id = :enrollmentId
+            GROUP BY cms.module_id
             SQL;
-        $stmt = $this->connection->execute($query);
+        $params = [
+            ':enrollmentId' => $enrollmentId,
+        ];
 
-        return array_map(
-            fn($row) => $this->hydrateCourseStatusData($row),
-            $stmt->fetchAll(\PDO::FETCH_ASSOC)
-        );
+        $stmt = $this->connection->execute($query, $params);
+
+        return $this->hydrateCourseStatusData($stmt->fetchAll(\PDO::FETCH_ASSOC)[0]);
     }
 
     public function deleteCourse(string $courseId): void
@@ -134,12 +138,29 @@ class CourseQueryService
     public function deleteCourseMaterial(string $materialId): void
     {
         $query = <<<SQL
-            UPDATE course_material
+            UPDATE course_module_status
             SET deleted_at = NOW()
             WHERE module_id = :materialId
             SQL;
         $params = [
             ':materialId' => $materialId,
+        ];
+
+        $this->connection->execute($query, $params);
+    }
+
+    private function saveCourseStatus(string $enrollmentId): void
+    {
+        $query = <<<SQL
+            INSERT INTO course_status
+              (enrollment_id, progress, duration)
+            VALUES
+              (:enrollmentId, :progress, :duration)
+            SQL;
+        $params = [
+            ':enrollmentId' => $enrollmentId,
+            ':progress' => 0,
+            ':duration' => 100
         ];
 
         $this->connection->execute($query, $params);
