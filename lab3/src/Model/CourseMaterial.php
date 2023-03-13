@@ -13,14 +13,6 @@ class CourseMaterial
         private ?\DateTimeImmutable $deletedAt,
     ) {}
 
-    /**
-     * @return void
-     */
-    public function delete(): void
-    {
-        $this->deletedAt = new \DateTimeImmutable();
-    }
-
     public function getModuleId(): string
     {
         return $this->moduleId;

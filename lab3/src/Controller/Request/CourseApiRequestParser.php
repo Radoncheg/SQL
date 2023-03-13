@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Controller\Request;
 
-use App\Model\Data\GetCourseStatusParams;
 use App\Model\Data\SaveCourseParams;
 use App\Model\Data\SaveEnrollmentParams;
 use App\Model\Data\SaveMaterialStatusParams;

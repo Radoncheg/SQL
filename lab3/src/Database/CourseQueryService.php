@@ -51,7 +51,7 @@ class CourseQueryService
         $this->connection->execute($query, $params);
     }
 
-    public function saveEnrollment(string $enrollmentId, string $courseId): string
+    public function saveEnrollment(string $enrollmentId, string $courseId): void
     {
         $query = <<<SQL
             INSERT INTO course_enrollment
@@ -65,8 +65,6 @@ class CourseQueryService
         ];
 
         $this->connection->execute($query, $params);
-
-        return $this->connection->getLastInsertId();
     }
 
     public function saveMaterialStatus(
@@ -74,7 +72,7 @@ class CourseQueryService
         string $moduleId,
         int $progress,
         int $duration
-    ): string
+    ): void
     {
         $query = <<<SQL
             INSERT INTO course_module_status
@@ -90,8 +88,6 @@ class CourseQueryService
         ];
 
         $this->connection->execute($query, $params);
-
-        return $this->connection->getLastInsertId();
     }
 
 
@@ -118,13 +114,35 @@ class CourseQueryService
         );
     }
 
-    public function deleteCourse(string $courseId): int
+    public function deleteCourse(string $courseId): void
     {
+        $params = [
+            ':courseId' => $courseId
+        ];
         $this->connection->execute(
             <<<SQL
-            DELETE FROM course WHERE course_id = {$courseId}
+            DELETE c, ce, cm 
+            FROM course c
+            LEFT JOIN course_enrollment ce ON c.course_id = ce.course_id
+            LEFT JOIN course_material cm ON c.course_id = cm.course_id  
+            WHERE c.course_id = :courseId
             SQL,
-        );
+        $params);
+
+    }
+
+    public function deleteCourseMaterial(string $materialId): void
+    {
+        $query = <<<SQL
+            UPDATE course_material
+            SET deleted_at = NOW()
+            WHERE module_id = :materialId
+            SQL;
+        $params = [
+            ':materialId' => $materialId,
+        ];
+
+        $this->connection->execute($query, $params);
     }
 
     private function hydrateCourseStatusData(array $row): CourseStatusData

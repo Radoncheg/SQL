@@ -17,14 +17,14 @@ class CourseService
     public function __construct(private Synchronization $synchronization, private CourseQueryService $courseQueryService)
     {}
 
-    public function saveEnrollment(SaveEnrollmentParams $params): string
+    public function saveEnrollment(SaveEnrollmentParams $params): void
     {
-        return $this->courseQueryService->saveEnrollment($params->getEnrollmentId(), $params->getCourseId());
+        $this->courseQueryService->saveEnrollment($params->getEnrollmentId(), $params->getCourseId());
     }
 
-    public function saveMaterialStatus(SaveMaterialStatusParams $params): string
+    public function saveMaterialStatus(SaveMaterialStatusParams $params): void
     {
-        return $this->courseQueryService->saveMaterialStatus(
+        $this->courseQueryService->saveMaterialStatus(
             $params->getEnrollmentId(),
             $params->getModuleId(),
             $params->getProgress(),
@@ -74,8 +74,14 @@ class CourseService
     {
         return $this->courseQueryService->getCourseStatusData($enrollmentId);
     }
+
     public function deleteCourse(string $id): void
     {
         $this->courseQueryService->deleteCourse($id);
+    }
+
+    public function deleteCourseMaterial(string $id): void
+    {
+        $this->courseQueryService->deleteCourseMaterial($id);
     }
 }

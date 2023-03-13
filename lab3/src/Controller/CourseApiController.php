@@ -6,7 +6,6 @@ namespace App\Controller;
 use App\Controller\Request\CourseApiRequestParser;
 use App\Controller\Request\RequestValidationException;
 use App\Controller\Response\CourseApiResponseFormatter;
-use App\Model\Exception\CourseNotFoundException;
 use App\Model\Exception\EnrollmentNotFoundException;
 use App\Model\Service\ServiceProvider;
 use Psr\Http\Message\ResponseInterface;
@@ -62,9 +61,9 @@ class CourseApiController
             return $this->badRequest($response, $exception->getFieldErrors());
         }
 
-        $enrollmentId = ServiceProvider::getInstance()->getCourseService()->saveEnrollment($params);
+        ServiceProvider::getInstance()->getCourseService()->saveEnrollment($params);
 
-        return $this->success($response, ['enrollmentId' => $enrollmentId]);
+        return $this->success($response, []);
     }
 
     public function saveMaterialStatus(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
@@ -78,9 +77,9 @@ class CourseApiController
             return $this->badRequest($response, $exception->getFieldErrors());
         }
 
-        $moduleId = ServiceProvider::getInstance()->getCourseService()->saveMaterialStatus($params);
+        ServiceProvider::getInstance()->getCourseService()->saveMaterialStatus($params);
 
-        return $this->success($response, ['moduleId' => $moduleId]);
+        return $this->success($response, []);
     }
 
     public function deleteCourse(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
@@ -98,6 +97,20 @@ class CourseApiController
         return $this->success($response, []);
     }
 
+    public function deleteCourseMaterial(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        try
+        {
+            $id = CourseApiRequestParser::parseString($request->getQueryParams(), 'moduleId');
+        }
+        catch (RequestValidationException $exception)
+        {
+            return $this->badRequest($response, $exception->getFieldErrors());
+        }
+
+        ServiceProvider::getInstance()->getCourseService()->deleteCourseMaterial($id);
+        return $this->success($response, []);
+    }
     private function success(ResponseInterface $response, array $responseData): ResponseInterface
     {
         return $this->withJson($response, $responseData)->withStatus(self::HTTP_STATUS_OK);

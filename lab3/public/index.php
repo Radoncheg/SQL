@@ -19,5 +19,6 @@ $app->post('/course/enrollment/save', CourseApiController::class . ':saveCourseE
 $app->delete('/course/delete', CourseApiController::class . ':deleteCourse');
 $app->post('/course/material/status/save', CourseApiController::class . ':saveMaterialStatus');
 $app->get('/course/status', CourseApiController::class . ':getCourseStatus');
+$app->post('/course/material/delete', CourseApiController::class . ':deleteCourseMaterial');
 
 $app->run();
