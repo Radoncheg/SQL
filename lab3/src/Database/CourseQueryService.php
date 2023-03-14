@@ -9,7 +9,6 @@ use App\Controller\Request\RequestValidationException;
 use App\Model\Course;
 use App\Model\CourseMaterial;
 use App\Model\Data\CourseStatusData;
-use App\Model\Data\ModuleStatusData;
 
 class CourseQueryService
 {
@@ -18,6 +17,7 @@ class CourseQueryService
 
     public function saveCourse(Course $course): void
     {
+        $this->isCourseExist($course->getCourseId());
         $query = <<<SQL
             INSERT INTO course
               (course_id, version, created_at, updated_at)
@@ -33,6 +33,24 @@ class CourseQueryService
 
             $this->connection->execute($query, $params);
     }
+
+
+    public function isCourseExist(string $courseId): void
+    {
+        $params = [
+            ':courseId' => $courseId,
+        ];
+        $stmt = $this->connection->execute(<<<SQL
+            SELECT * FROM course WHERE course_id = :courseId
+            SQL,
+        $params);
+        $row = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        if (empty($row))
+        {
+            throw new RequestValidationException([$courseId => 'is exist!']);
+        }
+    }
+
 
     public function saveModule(CourseMaterial $module, string $courseId): void
     {
@@ -66,8 +84,7 @@ class CourseQueryService
             ':courseId' => $courseId,
         ];
 
-        $this->connection->execute($query, $params);
-        $this->saveCourseStatus($enrollmentId);
+        $this->connection->execute($query, $params);;
     }
 
     public function saveMaterialStatus(
@@ -82,6 +99,8 @@ class CourseQueryService
               (enrollment_id, module_id, progress, duration)
             VALUES
               (:enrollmentId, :moduleId, :progress, :duration)
+            ON DUPLICATE KEY UPDATE
+            enrollment_id = :enrollmentId, module_id = :moduleId, progress = :progress, duration = duration + :duration, deleted_at = NULL
             SQL;
         $params = [
             ':enrollmentId' => $enrollmentId,
@@ -89,8 +108,8 @@ class CourseQueryService
             ':progress' => $progress,
             ':duration' => $duration
         ];
-
         $this->connection->execute($query, $params);
+        $this->saveCourseStatus($enrollmentId, $progress, $duration);
     }
 
 
@@ -121,7 +140,7 @@ class CourseQueryService
 
         if (empty($result))
         {
-            throw new RequestValidationException([$name => 'All modules are deleted']);
+            throw new RequestValidationException([$enrollmentId => 'All modules are deleted']);
         }
 
         return $this->hydrateCourseStatusData($result);
@@ -158,21 +177,50 @@ class CourseQueryService
         $this->connection->execute($query, $params);
     }
 
-    private function saveCourseStatus(string $enrollmentId): void
+    private function saveCourseStatus(string $enrollmentId, int $progress, int $duration): void
     {
+        $courseId = $this->getCourseIdByEnrollmentId($enrollmentId);
         $query = <<<SQL
             INSERT INTO course_status
               (enrollment_id, progress, duration)
             VALUES
               (:enrollmentId, :progress, :duration)
+            ON DUPLICATE KEY UPDATE
+            duration = duration + :duration, progress = :progress
             SQL;
         $params = [
             ':enrollmentId' => $enrollmentId,
-            ':progress' => 0,
-            ':duration' => 100
+            ':progress' => $this->getFullProgressIfNotRequired($courseId) ? 100 : $progress,
+            ':duration' => $duration
         ];
 
         $this->connection->execute($query, $params);
+    }
+
+    private function getCourseIdByEnrollmentId(string $enrollmentId): string
+    {
+        $params = [
+            ':enrollmentId' => $enrollmentId
+        ];
+        $query = <<<SQL
+        SELECT course_id FROM course_enrollment WHERE enrollment_id = :enrollmentId
+        SQL;
+        $stmt = $this->connection->execute($query, $params);
+        $row = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        return $row[0];
+    }
+
+    private function getFullProgressIfNotRequired(string $courseId): bool
+    {
+        $params = [
+            ':courseId' => $courseId
+            ];
+        $query = <<<SQL
+        SELECT COUNT(*) FROM course_material WHERE is_required = 1 AND course_id = :courseId
+        SQL;
+        $stmt = $this->connection->execute($query, $params);
+        $row = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        return empty($row);
     }
 
     private function hydrateCourseStatusData(array $row): CourseStatusData

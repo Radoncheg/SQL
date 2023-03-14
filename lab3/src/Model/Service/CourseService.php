@@ -19,17 +19,21 @@ class CourseService
 
     public function saveEnrollment(SaveEnrollmentParams $params): void
     {
-        $this->courseQueryService->saveEnrollment($params->getEnrollmentId(), $params->getCourseId());
+        $this->synchronization->doWithTransaction(function () use ($params) {
+            $this->courseQueryService->saveEnrollment($params->getEnrollmentId(), $params->getCourseId());
+        });
     }
 
     public function saveMaterialStatus(SaveMaterialStatusParams $params): void
     {
-        $this->courseQueryService->saveMaterialStatus(
-            $params->getEnrollmentId(),
-            $params->getModuleId(),
-            $params->getProgress(),
-            $params->getSessionDuration()
-        );
+        $this->synchronization->doWithTransaction(function () use ($params) {
+            $this->courseQueryService->saveMaterialStatus(
+                $params->getEnrollmentId(),
+                $params->getModuleId(),
+                $params->getProgress(),
+                $params->getSessionDuration()
+            );
+        });
     }
 
     public function saveCourse(SaveCourseParams $params): void
